@@ -8,7 +8,11 @@ The impetus for this project comes from attempting to debug the project by the s
 
 ##Use
 
-Plug in a PowerMate. Run `make` on a linux command line. You should see text detailing each step in the process.
+- Plug in a PowerMate
+- Get [libusb](http://libusb.org)
+- Edit the Makefile so that gcc can find libusb
+- Run `make` on a linux command line.
+- You should see text detailing each step in the process.
 
 ##Steps
 

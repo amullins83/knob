@@ -1,6 +1,6 @@
 #Knob - Using LibUSB to control a [Griffin PowerMate](http://store.griffintechnology.com/powermate)
 
-This is a work in progress. The goal of this project is to demonstrate basic [libusb](http://libusb.org) functionality with the Griffin Powermate USB controller. Unfortunately, my development machine is a Mac, and OSX has kernel restrictions preventing HID devices from being used by applications in this way.
+This is a work in progress. The goal of this project is to demonstrate basic [libusb](http://libusb.info) functionality with the Griffin Powermate USB controller. Unfortunately, my development machine is a Mac, and OSX has kernel restrictions preventing HID devices from being used by applications in this way.
 
 ##Acknowledgements
 
@@ -9,7 +9,7 @@ The impetus for this project comes from attempting to debug the project by the s
 ##Use
 
 - Plug in a PowerMate
-- Get [libusb](http://libusb.org)
+- Get [libusb](http://libusb.info)
 - Edit the Makefile so that gcc can find libusb
 - Run `make` on a linux command line.
 - You should see text detailing each step in the process.

@@ -11,8 +11,8 @@ run: link
 	./$(executable)
 
 link: compile
-	LIB_PATH=/usr/local/Cellar/libusb/1.0.18/lib gcc -o $(executable) $(main_obj) $(lib_obj) -lusb-1.0
+	LIB_PATH=/usr/local/lib gcc -o $(executable) $(main_obj) $(lib_obj) -lusb-1.0
 
 compile:
-	gcc -o $(lib_obj) -c $(lib_c) -I/usr/local/Cellar/libusb/1.0.18/include/libusb-1.0
+	gcc -o $(lib_obj) -c $(lib_c) -I/usr/local/include/libusb-1.0
 	gcc -o $(main_obj) -c $(main_c)

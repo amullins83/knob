@@ -1,6 +1,6 @@
 #ifndef KNOB_H
 #define KNOB_H
-#include <stdlib.h>
+#include <stdint.h>
 
 #define KNOB_VID 0x77d
 #define KNOB_PID 0x410
@@ -42,5 +42,8 @@ int get_knob(void);
 void show_knob_endpoints(void);
 void drive_knob(void);
 void close_knob(void);
+
+int knob_is_waiting(void);
+void knob_handle_events(void);
 
 #endif

@@ -10,6 +10,7 @@ libusb_device  **knob_context_list;
 libusb_device  *knob_device;
 libusb_device_handle *knob_handle;
 int knob_interface_error;
+int is_knob_waiting = 0; 
 
 int is_knob(libusb_device *dev);
 
@@ -96,6 +97,7 @@ int knob_handle_from_dev(void)
   if(error_code)
   {
     printf("Error opening handle: %s\n", libusb_strerror(error_code));
+    return 0;
   }
   else
   {
@@ -108,7 +110,8 @@ int knob_handle_from_dev(void)
     }
   }
 
-  return 0;
+  printf("Failed to claim interface 0\n");
+  return 1;
 }
 
 unsigned char knob_endpoint_direction(struct libusb_endpoint_descriptor endpoint)
@@ -142,22 +145,30 @@ void on_output_done(struct libusb_transfer *transfer);
 
 void drive_knob(void)
 {
-  KnobState *state = (KnobState *)malloc(sizeof(KnobState));
-  unsigned char *out_buffer = (unsigned char *)malloc(2);
-  out_buffer[0] = 120;
-  out_buffer[1] = '\0';
+  KnobState *state = malloc(sizeof *state);
+  unsigned char *out_buffer = malloc(8);
 
-  struct libusb_transfer *input_transfer = libusb_alloc_transfer(0);
   struct libusb_transfer *output_transfer = libusb_alloc_transfer(0);
 
-  libusb_fill_interrupt_transfer(input_transfer, knob_handle, KNOB_IN_ENDPOINT,
-    (unsigned char *)state, KNOB_IN_SIZE, on_knob_event, NULL, 100);
+  libusb_fill_control_setup(
+    out_buffer,
+    LIBUSB_REQUEST_TYPE_VENDOR | LIBUSB_RECIPIENT_INTERFACE |
+    LIBUSB_ENDPOINT_OUT,
+    1,
+    0x0104,
+    0x0001,
+    0);
 
-  libusb_fill_interrupt_transfer(output_transfer, knob_handle, KNOB_OUT_ENDPOINT,
-    out_buffer, 1, on_output_done, NULL, 100);
+  libusb_fill_control_transfer(
+    output_transfer,
+    knob_handle,
+    out_buffer,
+    on_output_done,
+    NULL,
+    1000);
 
-  libusb_submit_transfer(input_transfer);
   libusb_submit_transfer(output_transfer);
+  is_knob_waiting += 1;
 }
 
 void report_state(KnobState *state);
@@ -166,11 +177,14 @@ void on_knob_event(struct libusb_transfer *transfer)
 {
   KnobState *state = (KnobState *)transfer->buffer;
   report_state(state);
+  is_knob_waiting--;
 }
 
 void on_output_done(struct libusb_transfer *transfer)
 {
   printf("Command completed\n");
+  printf("transfer status: %d\n", transfer->status);
+  is_knob_waiting--;
 }
 
 void report_state(KnobState *state)
@@ -204,4 +218,14 @@ void close_knob(void)
   libusb_exit(knob_usb_context);
   
   printf("Deinitialized\n");
+}
+
+int knob_is_waiting(void)
+{
+  return is_knob_waiting;
+}
+
+void knob_handle_events(void)
+{
+  libusb_handle_events(knob_usb_context);
 }
